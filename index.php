@@ -4,35 +4,62 @@ if (isset($_POST['hitung'])) {
     $paket = $_POST['paket'];
     $tanggal = $_POST['tanggal'];
     $durasi = $_POST['durasi'];
+    $jumlah = $_POST['jumlah']; // jumlah kilo
 
-    // Harga per paket
-    $harga_paket = [
-        1 => 5000,
-        2 => 8000,
-        3 => 10000,
-        4 => 13000
-    ];
+    // Tentukan harga paket dan nama paket
+    switch ($paket) {
+        case 1:
+            $harga_paket = 5000;
+            $nama_paket = "Cuci";
+            break;
+        case 2:
+            $harga_paket = 8000;
+            $nama_paket = "Cuci + Setrika";
+            break;
+        case 3:
+            $harga_paket = 10000;
+            $nama_paket = "Cuci Selimut/Seprai";
+            break;
+        case 4:
+            $harga_paket = 13000;
+            $nama_paket = "Cuci + Setrika Selimut/Seprai";
+            break;
+        default:
+            $harga_paket = 0;
+            $nama_paket = "Tidak Diketahui";
+            break;
+    }
 
-    // Tambahan harga & durasi waktu keluar
-    $durasi_info = [
-        1 => ['tambah_harga' => 0, 'tambah_hari' => 2, 'nama' => 'Reguler'],
-        2 => ['tambah_harga' => 3000, 'tambah_hari' => 1, 'nama' => 'Kilat'],
-        3 => ['tambah_harga' => 5000, 'tambah_hari' => 0, 'nama' => '8 Jam']
-    ];
-
-    // Nama paket laundry
-    $nama_paket = [
-        1 => 'Cuci',
-        2 => 'Cuci + Setrika',
-        3 => 'Cuci Selimut/Seprai',
-        4 => 'Cuci + Setrika Selimut/Seprai'
-    ];
+    // Tentukan tambahan harga & lama hari (durasi)
+    switch ($durasi) {
+        case 1: // Reguler
+            $tambah_harga = 0;
+            $tambah_hari = 2;
+            $nama_durasi = "Reguler";
+            break;
+        case 2: // Kilat
+            $tambah_harga = 3000;
+            $tambah_hari = 1;
+            $nama_durasi = "Kilat";
+            break;
+        case 3: // 8 Jam
+            $tambah_harga = 5000;
+            $tambah_hari = 0;
+            $nama_durasi = "8 Jam";
+            break;
+        default:
+            $tambah_harga = 0;
+            $tambah_hari = 0;
+            $nama_durasi = "Tidak Diketahui";
+            break;
+    }
 
     // Hitung total harga
-    $total = $harga_paket[$paket] + $durasi_info[$durasi]['tambah_harga'];
+    $harga_perkilo = $harga_paket + $tambah_harga;
+    $total = $harga_perkilo * $jumlah;
 
     // Hitung tanggal keluar
-    $tgl_keluar = date('Y-m-d', strtotime($tanggal . ' + ' . $durasi_info[$durasi]['tambah_hari'] . ' days'));
+    $tgl_keluar = date('Y-m-d', strtotime($tanggal . ' + ' . $tambah_hari . ' days'));
 }
 ?>
 <!DOCTYPE html>
@@ -84,6 +111,10 @@ if (isset($_POST['hitung'])) {
                                     <option value="3">8 Jam</option>
                                 </select>
                             </div>
+                            <div class="mb-3">
+                                <label class="form-label">Jumlah (Kg)</label>
+                                <input type="number" name="jumlah" class="form-control" min="1" placeholder="Masukkan berat (kg)" required>
+                            </div>
                         </div>
                     </div>
                     <div class="text-center mt-3">
@@ -95,9 +126,12 @@ if (isset($_POST['hitung'])) {
                 <div class="alert alert-success mt-4">
                     <h5 class="fw-bold">Data Transaksi</h5>
                     <p><strong>Nama:</strong> <?= htmlspecialchars($nama) ?></p>
-                    <p><strong>Paket Laundry:</strong> <?= $nama_paket[$paket] ?></p>
+                    <p><strong>Paket Laundry:</strong> <?= $nama_paket ?></p>
+                    <p><strong>Durasi:</strong> <?= $nama_durasi ?></p>
                     <p><strong>Tanggal Masuk:</strong> <?= $tanggal ?></p>
                     <p><strong>Tanggal Keluar:</strong> <?= $tgl_keluar ?></p>
+                    <p><strong>Jumlah:</strong> <?= $jumlah ?> Kg</p>
+                    <p><strong>Harga per Kg:</strong> Rp<?= number_format($harga_perkilo, 0, ',', '.') ?></p>
                     <p><strong>Total Harga:</strong> Rp<?= number_format($total, 0, ',', '.') ?></p>
                 </div>
                 <?php endif; ?>
